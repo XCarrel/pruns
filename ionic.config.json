@@ -1,0 +1,8 @@
+{
+  "name": "pruns",
+  "app_id": "4e341434",
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {}
+  }
+}

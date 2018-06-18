@@ -1,0 +1,41 @@
+<
+<ion-header>
+
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-grid>
+      <ion-row>
+        <ion-col no-padding class="col col-4 filterCell">
+          Mes runs<br><ion-checkbox [(ngModel)]="myruns" (click)="filter()"></ion-checkbox>
+        </ion-col>
+        <ion-col no-padding class="col col-4 filterCell">
+          Terminés<br><ion-checkbox [(ngModel)]="finished" (click)="filter()"></ion-checkbox>
+        </ion-col>
+        <ion-col no-padding class="col col-4 filterCell">
+          Incomplets<br><ion-checkbox [(ngModel)]="incomplete" (click)="filter()"></ion-checkbox>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content>
+  <div *ngIf="loading" style="text-align:center">
+    <ion-spinner></ion-spinner>
+    <br/> Chargement...
+  </div>
+
+  <ion-scroll scrollY="true" style="height: 100%">
+    <ion-list no-padding>
+      <ion-item *ngFor="let run of filteredRuns" no-lines class="row {{ run.status }}_class" (click)="viewDetails(run)">
+            <ion-col class="col">{{run.title}}</ion-col>
+            <ion-col class="col">{{run.planned_at | date:'H:mm'}}</ion-col>
+            <ion-col class="col" *ngIf="run.belongsTo(userid)"><ion-icon name="person"></ion-icon></ion-col>
+      </ion-item>
+    </ion-list>
+  </ion-scroll>
+
+</ion-content>

@@ -14,3 +14,80 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+
+$warning: #fd8b2d;
+$error: #ff0000;
+$great: #69bb7b;
+$ended: #ce50e1;
+$darken: rgba(0, 0, 0, 0.1);
+$blue: #387ef5;
+
+$offlineWidth: 16px;
+$runStatus: (
+  empty: $darken,
+  organizing-users: $warning,
+  organizing-vehicles: $warning,
+  ready: $great,
+  inProgress: $great,
+  completed: $ended,
+  problem: $error
+);
+
+$vehicleStatus: (
+  free: $great,
+  taken: $error
+);
+
+$driverStatus: (
+  free: $great,
+  taken: $error
+);
+
+.wifi-status {
+  float: right;
+  margin-right: 15px;
+  font-size: $offlineWidth;
+  margin-top: auto;
+  margin-bottom: auto;
+  color: $error;
+  line-height: 1.5;
+  //position: absolute;
+  //top: 15px;
+  //right: 0;
+}
+ion-navbar{
+  ion-title{
+    display: inline-flex;
+  }
+}
+
+.toastMessage {
+  text-align: center;
+}
+
+// Classes for run status display
+.gone_class {
+  @extend .row_class;
+  background-color: lightblue;
+}
+
+.finished_class {
+  @extend .row_class;
+  color: gray;
+}
+
+.error_class {
+  @extend .row_class;
+  background-color: lightpink;
+}
+
+.needs_filling_class {
+  @extend .row_class;
+  background-color: lightblue;
+}
+
+.ready_class {
+  @extend .row_class;
+  background-color: lightgreen;
+}
+

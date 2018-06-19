@@ -6,7 +6,7 @@ import {WaypointModel} from "./waypointModel";
 
 export class RunModel {
 
-  private id: number
+  public id: number
   private title: string
   public status: string
   private planned_at: string // begin_at field
@@ -44,13 +44,4 @@ export class RunModel {
     return res
   }
 
-  isIncomplete() {
-    let res: boolean = false
-    this.runners.forEach(runner => {
-      if (runner.driverId == null) {
-        res = true
-      }
-    })
-    return res
-  }
 }

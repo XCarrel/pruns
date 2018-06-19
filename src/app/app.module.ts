@@ -13,6 +13,7 @@ import {RunsPage} from "../pages/runs/runs";
 import { DataProvider } from '../providers/data/data';
 import {HttpClientModule} from "@angular/common/http";
 import {IonicStorageModule} from "@ionic/storage";
+import {BarcodeScanner} from "@ionic-native/barcode-scanner";
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import {IonicStorageModule} from "@ionic/storage";
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    DataProvider
+    DataProvider,
+    BarcodeScanner
   ]
 })
 export class AppModule {}

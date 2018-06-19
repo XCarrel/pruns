@@ -15,6 +15,33 @@
 
 <ion-content padding>
   <div class="status {{ run.status }}_class">{{ runStatusDisplay }}</div>
+
+  <!-- Start button if Mine & Ready -->
+  <div *ngIf="runIsMine && runStatusCode == 2">
+    <button ion-button full color="secondary" icon-left (click)="start()">
+      <ion-icon name="car"></ion-icon>
+      <ion-icon name="arrow-round-forward"></ion-icon>
+      {{ run.runners.length > 1 ? 'On y va' : "J'y vais" }}
+    </button>
+  </div>
+
+  <!-- Stop button if Mine & In Progress -->
+  <div *ngIf="runIsMine && runStatusCode == 3">
+    <button ion-button full color="danger" icon-left (click)="stop()">
+      <ion-icon name="arrow-round-back"></ion-icon>
+      <ion-icon name="car"></ion-icon>
+      {{ run.runners.length > 1 ? 'On est de retour' : "Je suis de retour" }}
+    </button>
+  </div>
+
+  <!-- take button if not mine & needs driver -->
+  <div *ngIf="!runIsMine && runStatusCode == 1">
+    <button ion-button full color="primary" icon-left (click)="take()">
+      Prendre
+    </button>
+  </div>
+
+
   <ion-card>
     <ion-card-content no-padding>
       <ion-list no-lines>
@@ -55,13 +82,13 @@
         <div class="runner" *ngFor="let runner of run.runners">
           <ion-item>
             <ion-grid item-content>
-              <ion-row class="runner__user">
-                <ion-icon name="person" item-left></ion-icon>
-                <h2>{{runner.driverName ? runner.driverName : 'Non défini'}}</h2>
+              <ion-row class="runner__user iconized">
+                <ion-icon name="person" item-left class="iconized"></ion-icon>
+                <h2 class="iconized">{{runner.driverName ? runner.driverName : 'Non défini'}}</h2>
               </ion-row>
-              <ion-row>
-                <ion-icon name="car" item-left></ion-icon>
-                <h2>{{ runner.vehicleName ? runner.vehicleName : runner.vehicleType ? runner.vehicleType :
+              <ion-row class="iconized">
+                <ion-icon name="car" item-left class="iconized"></ion-icon>
+                <h2 class="iconized">{{ runner.vehicleName ? runner.vehicleName : runner.vehicleType ? runner.vehicleType :
                   'Non défini' }}</h2>
               </ion-row>
             </ion-grid>

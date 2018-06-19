@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import {Component} from '@angular/core';
+import {IonicPage, NavController, NavParams} from 'ionic-angular';
 import {Parameters} from "../../providers/Parameters";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Storage} from '@ionic/storage';
@@ -26,6 +26,7 @@ export class RunsPage {
   private runs: RunModel[]
   private filteredRuns: RunModel[]
   private userid: number
+  private usertoken: string
   private myruns: boolean
   private finished: boolean
   private incomplete: boolean
@@ -34,41 +35,43 @@ export class RunsPage {
     this.storage.get('userid').then((val) => {
       this.userid = val
     })
+    this.storage.get('token').then(token => {
+      this.usertoken = token
+      this.load(null)
+    })
   }
 
   ionViewDidLoad() {
-    this.load()
   }
 
-  private load() {
-    this.storage.get('token').then(token => {
-      if (token != null) {
-        let headers = new HttpHeaders().set('Authorization','Bearer '+token)
-        this.httpClient.get(Parameters.API+"/runs",{headers})
-          .subscribe(
-            data => {
-              this.buildFromJSON(data)
-              this.filter()
-              this.loading = false
-            },
-            err => {
-              console.log('Error')
-            }
-          )
-      }
-    })
+  private load(refresher) {
+    let headers = new HttpHeaders().set('Authorization', 'Bearer ' + this.usertoken)
+    this.httpClient.get(Parameters.API + "/runs", {headers})
+      .subscribe(
+        data => {
+          this.buildFromJSON(data)
+          this.filter()
+          this.loading = false
+          if (refresher != null) refresher.complete()
+        },
+        err => {
+          console.log('Error')
+          if (refresher != null) refresher.complete()
+        }
+      )
   }
+
 
   private buildFromJSON(data) {
     this.runs = [] // Empty current list or initialize it
     data.forEach((value) => {
-      var r = new RunModel(value.id,value.title,value.status,value.begin_at,value.start_at,value.end_at)
+      var r = new RunModel(value.id, value.title, value.status, value.begin_at, value.start_at, value.end_at)
       value.runners.forEach((runner) => {
         let rid: number = (runner.user == null) ? null : runner.user.id // run is incomplete
         let rname: string = (runner.user == null) ? null : runner.user.name // run is incomplete
         let vtype: string = (runner.vehicle_category == null) ? null : runner.vehicle_category.type // run is incomplete
         let vname: string = (runner.vehicle == null) ? null : runner.vehicle.name // run is incomplete
-        r.addRunner(new RunnerModel(rid,rname, vtype, vname))
+        r.addRunner(new RunnerModel(rid, rname, vtype, vname))
       })
       value.waypoints.forEach((waypoint) => {
         r.addWaypoint(new WaypointModel(waypoint.nickname))
@@ -101,11 +104,12 @@ export class RunsPage {
         mineFilter = true
 
       if (this.incomplete)
-        incompleteFilter = run.isIncomplete()
+        incompleteFilter = (run.status == 'needs_filling')
       else
         incompleteFilter = true
 
       if (finishedFilter && mineFilter && incompleteFilter) this.filteredRuns.push(run)
     })
   }
+
 }

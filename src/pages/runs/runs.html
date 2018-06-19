@@ -1,4 +1,3 @@
-<
 <ion-header>
 
   <ion-navbar>
@@ -27,6 +26,10 @@
     <ion-spinner></ion-spinner>
     <br/> Chargement...
   </div>
+
+  <ion-refresher (ionRefresh)="load($event)">
+    <ion-refresher-content refreshingText="Mise à jour..."></ion-refresher-content>
+  </ion-refresher>
 
   <ion-scroll scrollY="true" style="height: 100%">
     <ion-list no-padding>

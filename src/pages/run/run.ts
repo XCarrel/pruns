@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import {IonicPage, NavController, NavParams, ToastController} from 'ionic-angular';
 import {RunModel} from "../../models/runModel";
 import {Storage} from '@ionic/storage';
+import {Parameters} from "../../providers/Parameters";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {WaypointModel} from "../../models/waypointModel";
+import {RunnerModel} from "../../models/runnerModel";
 
 /**
  * Generated class for the RunPage page.
@@ -29,13 +33,23 @@ export class RunPage {
   private runStatusDisplay: string // This is the displayed status
   private runStatusCode: number // used to build the UI with the right controls
   private runIsMine: boolean
+  private usertoken: string
+  private headers: Headers;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public httpClient: HttpClient, public toastCtrl: ToastController) {
+    this.run = navParams.get("run")
+    this.storage.get('token').then(token => {
+      this.usertoken = token
+    })
+
     this.storage.get('userid').then((val) => {
       this.userid = val
+      this.runIsMine = this.run.belongsTo(this.userid)
     })
-    this.run = navParams.get("run")
+    this.mapStatus()
+  }
 
+  private mapStatus() {
     // Map run status for display and handling
     this.runStatusCode = 0
     this.runStatusDisplay = 'Etat bizarre'
@@ -45,11 +59,67 @@ export class RunPage {
         this.runStatusCode = status.code
       }
     })
-
-    this.runIsMine = this.run.belongsTo(this.userid)
   }
 
-  ionViewDidLoad() {
+  private parseResponse(data) {
+    this.run = new RunModel(data.id, data.title, data.status, data.begin_at, data.start_at, data.end_at)
+    data.runners.forEach((runner) => {
+      let rid: number = (runner.user == null) ? null : runner.user.id // run is incomplete
+      let rname: string = (runner.user == null) ? null : runner.user.name // run is incomplete
+      let vtype: string = (runner.vehicle_category == null) ? null : runner.vehicle_category.type // run is incomplete
+      let vname: string = (runner.vehicle == null) ? null : runner.vehicle.name // run is incomplete
+      this.run.addRunner(new RunnerModel(rid, rname, vtype, vname))
+    })
+    data.waypoints.forEach((waypoint) => {
+      this.run.addWaypoint(new WaypointModel(waypoint.nickname))
+    })
+  }
+
+  start() {
+    let headers = new HttpHeaders()
+      .set('Authorization', 'Bearer ' + this.usertoken)
+      .set('X-Requested-With', 'XMLHttpRequest')
+    this.httpClient.post(Parameters.API + "/runs/"+this.run.id+"/start", {}, {headers})
+      .subscribe(
+        data => {
+          this.parseResponse(data)
+          this.mapStatus()
+        },
+        err => {
+          this.toastCtrl.create({message: 'Ils ont pas voulu...', duration:1000, cssClass:'toastMessage'}).present()
+        }
+      )
+  }
+
+  stop() {
+    let headers = new HttpHeaders()
+      .set('Authorization', 'Bearer ' + this.usertoken)
+      .set('X-Requested-With', 'XMLHttpRequest')
+    this.httpClient.post(Parameters.API + "/runs/"+this.run.id+"/stop", {}, {headers})
+      .subscribe(
+        data => {
+          this.parseResponse(data)
+          this.mapStatus()
+        },
+        err => {
+          this.toastCtrl.create({message: 'Ils ont pas voulu...', duration:1000, cssClass:'toastMessage'}).present()
+        }
+      )
+  }
+
+  take() {
+    let headers = new HttpHeaders()
+      .set('Authorization', 'Bearer ' + this.usertoken)
+      .set('X-Requested-With', 'XMLHttpRequest')
+    this.httpClient.post(Parameters.API + "/runs/"+this.run.id+"/runners", {}, {headers})
+      .subscribe(
+        data => {
+          this.parseResponse(data)
+        },
+        err => {
+          this.toastCtrl.create({message: 'Ils ont pas voulu...', duration:1000, cssClass:'toastMessage'}).present()
+        }
+      )
   }
 
 }

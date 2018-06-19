@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import {IonicPage, NavController, NavParams, ToastController} from 'ionic-angular';
+import {IonicPage, NavController, NavParams, Platform, ToastController} from 'ionic-angular';
 import {Storage} from '@ionic/storage';
 import {Parameters} from "../../providers/Parameters";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {RunsPage} from "../runs/runs";
 import {DriverModel} from "../../models/driverModel";
+import {BarcodeScanner} from "@ionic-native/barcode-scanner";
 
 /**
  * Generated class for the LoginPage page.
@@ -20,7 +21,7 @@ import {DriverModel} from "../../models/driverModel";
 })
 export class LoginPage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public httpClient: HttpClient, public toastCtrl: ToastController) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public httpClient: HttpClient, public toastCtrl: ToastController, private barcodeScanner: BarcodeScanner, private platform: Platform) {
   }
 
   ionViewDidLoad() {
@@ -41,7 +42,7 @@ export class LoginPage {
             },
             err => {
               this.storage.remove('token') // invalid token -> trash it
-              this.toastCtrl.create({message: 'Code invalide', duration:1000, cssClass:'toastMessage'}).present()
+              this.toastCtrl.create({message: 'Code invalide', duration:2000, cssClass:'toastMessage'}).present()
             }
           )
       }
@@ -56,5 +57,24 @@ export class LoginPage {
       this.attemptLogin()
     })
   }
+
+  scan(): void {
+    this.platform.ready().then(() => {
+      this.barcodeScanner
+        .scan({
+          preferFrontCamera: false,
+          showFlipCameraButton: true,
+          showTorchButton: true,
+          prompt: 'Scanne ton QRCode',
+          formats: 'QR_CODE',
+        })
+        .then(result => {
+          this.storage.set('token',result.text).then(() => {
+            this.attemptLogin()
+          })
+        })
+    })
+  }
+
 
 }

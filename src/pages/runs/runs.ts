@@ -71,7 +71,7 @@ export class RunsPage {
         let rname: string = (runner.user == null) ? null : runner.user.name // run is incomplete
         let vtype: string = (runner.vehicle_category == null) ? null : runner.vehicle_category.type // run is incomplete
         let vname: string = (runner.vehicle == null) ? null : runner.vehicle.name // run is incomplete
-        r.addRunner(new RunnerModel(rid, rname, vtype, vname))
+        r.addRunner(new RunnerModel(runner.id,rid, rname, vtype, vname))
       })
       value.waypoints.forEach((waypoint) => {
         r.addWaypoint(new WaypointModel(waypoint.nickname))

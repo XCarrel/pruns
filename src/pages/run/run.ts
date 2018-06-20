@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import {IonicPage, NavController, NavParams, ToastController} from 'ionic-angular';
+import {IonicPage, NavController, NavParams, ToastController, AlertController} from 'ionic-angular';
 import {RunModel} from "../../models/runModel";
 import {Storage} from '@ionic/storage';
 import {Parameters} from "../../providers/Parameters";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {WaypointModel} from "../../models/waypointModel";
 import {RunnerModel} from "../../models/runnerModel";
+import {CarModel} from "../../models/carModel";
 
 /**
  * Generated class for the RunPage page.
@@ -22,7 +23,7 @@ import {RunnerModel} from "../../models/runnerModel";
 export class RunPage {
 
   private statusMap: Array<any> = [
-    {internal: 'needs_filling', external: 'Recherche chauffeur', code: 1},
+    {internal: 'needs_filling', external: 'Incomplet', code: 1},
     {internal: 'ready', external: 'Prêt au départ', code: 2},
     {internal: 'gone', external: 'En cours', code: 3},
     {internal: 'finished', external: 'Terminé', code: 4},
@@ -34,12 +35,14 @@ export class RunPage {
   private runStatusCode: number // used to build the UI with the right controls
   private runIsMine: boolean
   private usertoken: string
-  private headers: Headers;
+  private cars: CarModel[] // All cars
+  private vehicle: number
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public httpClient: HttpClient, public toastCtrl: ToastController) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public httpClient: HttpClient, public toastCtrl: ToastController, public alertCtrl: AlertController) {
     this.run = navParams.get("run")
     this.storage.get('token').then(token => {
       this.usertoken = token
+      this.getCars()
     })
 
     this.storage.get('userid').then((val) => {
@@ -62,17 +65,71 @@ export class RunPage {
   }
 
   private parseResponse(data) {
+    console.log(data)
     this.run = new RunModel(data.id, data.title, data.status, data.begin_at, data.start_at, data.end_at)
     data.runners.forEach((runner) => {
       let rid: number = (runner.user == null) ? null : runner.user.id // run is incomplete
       let rname: string = (runner.user == null) ? null : runner.user.name // run is incomplete
       let vtype: string = (runner.vehicle_category == null) ? null : runner.vehicle_category.type // run is incomplete
       let vname: string = (runner.vehicle == null) ? null : runner.vehicle.name // run is incomplete
-      this.run.addRunner(new RunnerModel(rid, rname, vtype, vname))
+      this.run.addRunner(new RunnerModel(runner.id,rid, rname, vtype, vname))
     })
     data.waypoints.forEach((waypoint) => {
       this.run.addWaypoint(new WaypointModel(waypoint.nickname))
     })
+  }
+
+  getCars() {
+    let headers = new HttpHeaders().set('Authorization', 'Bearer ' + this.usertoken)
+    this.httpClient.get(Parameters.API + "/vehicles", {headers})
+      .subscribe(
+        data => {
+          this.cars = [] // Empty current list or initialize it
+          let cars = data as Array<any>
+          cars.forEach((value) => {
+            var c = new CarModel(value.id, value.name, value.type.type)
+            this.cars.push(c)
+          })
+        },
+        err => {
+          console.log('Error load cars:'+JSON.stringify(err))
+        }
+      )
+  }
+
+  selectCar(rid) {
+    let inputs = []
+    this.cars.forEach(car => {
+      inputs.push({type: 'radio', label: car.name, value: car.id})
+    })
+    let prompt = this.alertCtrl.create({
+      title: 'Choisis ton char',
+      inputs : inputs,
+      buttons : [
+        {
+          text: "Annuler",
+          handler: data => {
+          }
+        },
+        {
+          text: "Ok",
+          handler: data => {
+            let headers = new HttpHeaders()
+              .set('Authorization', 'Bearer ' + this.usertoken)
+              .set('X-Requested-With', 'XMLHttpRequest')
+            this.httpClient.patch(Parameters.API + "/runners/"+rid+"/car", { car_id: data}, {headers})
+              .subscribe(
+                data => {
+                  this.parseResponse(data)
+                  this.mapStatus()
+                },
+                err => {
+                  this.toastCtrl.create({message: 'Ils ont pas voulu...', duration:1000, cssClass:'toastMessage'}).present()
+                }
+              )
+          }
+        }]});
+    prompt.present();
   }
 
   start() {
@@ -107,14 +164,15 @@ export class RunPage {
       )
   }
 
-  take() {
+  take(rid) {
     let headers = new HttpHeaders()
       .set('Authorization', 'Bearer ' + this.usertoken)
       .set('X-Requested-With', 'XMLHttpRequest')
-    this.httpClient.post(Parameters.API + "/runs/"+this.run.id+"/runners", {}, {headers})
+    this.httpClient.patch(Parameters.API + "/runners/"+rid+"/driver", {}, {headers})
       .subscribe(
         data => {
           this.parseResponse(data)
+          this.mapStatus()
         },
         err => {
           this.toastCtrl.create({message: 'Ils ont pas voulu...', duration:1000, cssClass:'toastMessage'}).present()

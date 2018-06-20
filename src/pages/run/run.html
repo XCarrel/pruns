@@ -17,8 +17,8 @@
   <div class="status {{ run.status }}_class">{{ runStatusDisplay }}</div>
 
   <!-- Start button if Mine & Ready -->
-  <div *ngIf="runIsMine && runStatusCode == 2">
-    <button ion-button full color="secondary" icon-left (click)="start()">
+  <div *ngIf="runIsMine && runStatusCode == 2" text-center>
+    <button ion-button color="secondary" icon-left (click)="start()">
       <ion-icon name="car"></ion-icon>
       <ion-icon name="arrow-round-forward"></ion-icon>
       {{ run.runners.length > 1 ? 'On y va' : "J'y vais" }}
@@ -26,21 +26,13 @@
   </div>
 
   <!-- Stop button if Mine & In Progress -->
-  <div *ngIf="runIsMine && runStatusCode == 3">
-    <button ion-button full color="danger" icon-left (click)="stop()">
+  <div *ngIf="runIsMine && runStatusCode == 3" text-center>
+    <button ion-button color="danger" icon-left (click)="stop()">
       <ion-icon name="arrow-round-back"></ion-icon>
       <ion-icon name="car"></ion-icon>
       {{ run.runners.length > 1 ? 'On est de retour' : "Je suis de retour" }}
     </button>
   </div>
-
-  <!-- take button if not mine & needs driver -->
-  <div *ngIf="!runIsMine && runStatusCode == 1">
-    <button ion-button full color="primary" icon-left (click)="take()">
-      Prendre
-    </button>
-  </div>
-
 
   <ion-card>
     <ion-card-content no-padding>
@@ -84,12 +76,26 @@
             <ion-grid item-content>
               <ion-row class="runner__user iconized">
                 <ion-icon name="person" item-left class="iconized"></ion-icon>
-                <h2 class="iconized">{{runner.driverName ? runner.driverName : 'Non défini'}}</h2>
+                <!-- take button if needs driver and I'm not already on this run-->
+                <span [ngSwitch]="!runIsMine && runStatusCode == 1 && runner.driverName == null">
+                  <button *ngSwitchCase="true" ion-button color="primary" icon-left (click)="take(runner.id)">Je m'en charge !</button>
+                  <h2 *ngSwitchDefault class="iconized">{{runner.driverName ? runner.driverName : '?'}}</h2>
+                </span>
               </ion-row>
+              <!-- Vehicle -->
               <ion-row class="iconized">
                 <ion-icon name="car" item-left class="iconized"></ion-icon>
-                <h2 class="iconized">{{ runner.vehicleName ? runner.vehicleName : runner.vehicleType ? runner.vehicleType :
-                  'Non défini' }}</h2>
+                <span *ngIf="runner.selectableBy(userid)">
+                  <button ion-button color="primary" icon-left (click)="selectCar(runner.id)">{{ runner.vehicleName == null ? 'Choisir' : runner.vehicleName }}</button>
+                </span>
+                <span *ngIf="!runner.selectableBy(userid)">
+                  <span *ngIf="runner.vehicleType != null">
+                    {{runner.vehicleName ? runner.vehicleName : 'Type '+runner.vehicleType}}
+                  </span>
+                  <span *ngIf="runner.vehicleType == null">
+                    Non défini
+                  </span>
+                </span>
               </ion-row>
             </ion-grid>
           </ion-item>
@@ -97,5 +103,4 @@
       </ion-list>
     </ion-card-content>
   </ion-card>
-
 </ion-content>

@@ -65,7 +65,6 @@ export class RunPage {
   }
 
   private parseResponse(data) {
-    console.log(data)
     this.run = new RunModel(data.id, data.title, data.status, data.begin_at, data.start_at, data.end_at)
     data.runners.forEach((runner) => {
       let rid: number = (runner.user == null) ? null : runner.user.id // run is incomplete
@@ -77,6 +76,8 @@ export class RunPage {
     data.waypoints.forEach((waypoint) => {
       this.run.addWaypoint(new WaypointModel(waypoint.nickname))
     })
+    this.mapStatus()
+    this.runIsMine = this.run.belongsTo(this.userid) // maybe it's mine now
   }
 
   getCars() {
@@ -84,6 +85,7 @@ export class RunPage {
     this.httpClient.get(Parameters.API + "/vehicles", {headers})
       .subscribe(
         data => {
+          console.log(data)
           this.cars = [] // Empty current list or initialize it
           let cars = data as Array<any>
           cars.forEach((value) => {
@@ -171,6 +173,7 @@ export class RunPage {
     this.httpClient.patch(Parameters.API + "/runners/"+rid+"/driver", {}, {headers})
       .subscribe(
         data => {
+          console.log(data)
           this.parseResponse(data)
           this.mapStatus()
         },

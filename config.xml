@@ -81,17 +81,18 @@
     <plugin name="cordova-plugin-splashscreen" spec="5.0.2" />
     <plugin name="cordova-plugin-ionic-webview" spec="1.1.19" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="2.0.5" />
-    <engine name="android" spec="~7.0.0" />
     <plugin name="phonegap-plugin-barcodescanner" spec="^8.0.0">
         <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
     </plugin>
     <allow-navigation href="http://192.168.0.12:8100" />
     <plugin name="cordova-plugin-ionic" spec="^4.1.7">
-        <variable name="APP_ID" value="4e341434" />
+        <variable name="APP_ID" value="3511b0f8" />
         <variable name="CHANNEL_NAME" value="Master" />
         <variable name="UPDATE_METHOD" value="background" />
         <variable name="WARN_DEBUG" value="true" />
         <variable name="UPDATE_API" value="https://api.ionicjs.com" />
         <variable name="MAX_STORE" value="2" />
     </plugin>
+    <engine name="android" spec="7.0.0" />
+    <engine name="ios" spec="^4.5.4" />
 </widget>

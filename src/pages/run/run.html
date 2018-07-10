@@ -18,7 +18,7 @@
 
   <!-- Start button if Mine & Ready -->
   <div *ngIf="runIsMine && runStatusCode == 2" text-center>
-    <button ion-button color="secondary" icon-left (click)="start()">
+    <button ion-button class="ready_class" icon-left (click)="start()">
       <ion-icon name="car"></ion-icon>
       <ion-icon name="arrow-round-forward"></ion-icon>
       {{ run.runners.length > 1 ? 'On y va' : "J'y vais" }}
@@ -40,6 +40,10 @@
         <ion-item>
           <ion-icon name="calendar" item-left></ion-icon>
           {{run.planned_at | date:'d MMM H:mm'}}
+        </ion-item>
+        <ion-item>
+          <ion-icon name="people" item-left></ion-icon>
+          {{run.pax}} pax
         </ion-item>
         <ion-item *ngIf="run.started_at">
           <ion-icon name="car" item-left></ion-icon>
@@ -77,7 +81,7 @@
               <ion-row class="runner__user iconized">
                 <ion-icon name="person" item-left class="iconized"></ion-icon>
                 <!-- take button if needs driver and I'm not already on this run-->
-                <span [ngSwitch]="!runIsMine && runStatusCode == 1 && runner.driverName == null">
+                <span [ngSwitch]="!runIsMine && (runStatusCode == 1 || runStatusCode == 5) && runner.driverName == null">
                   <button *ngSwitchCase="true" ion-button color="primary" icon-left (click)="take(runner.id)">Je m'en charge !</button>
                   <h2 *ngSwitchDefault class="iconized">{{runner.driverName ? runner.driverName : '?'}}</h2>
                 </span>
@@ -86,7 +90,7 @@
               <ion-row class="iconized">
                 <ion-icon name="car" item-left class="iconized"></ion-icon>
                 <span *ngIf="runner.selectableBy(userid)">
-                  <button ion-button color="primary" icon-left (click)="selectCar(runner.id)">{{ runner.vehicleName == null ? 'Choisir' : runner.vehicleName }}</button>
+                  <button ion-button color="primary" icon-left (click)="selectCar(runner)">{{ runner.vehicleName == null ? 'Choisir' : runner.vehicleName }}</button>
                 </span>
                 <span *ngIf="!runner.selectableBy(userid)">
                   <span *ngIf="runner.vehicleType != null">

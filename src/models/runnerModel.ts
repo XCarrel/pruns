@@ -19,7 +19,7 @@ export class RunnerModel {
   }
 
   public selectableBy(uid: number) {
-    return (this.driverId == uid && this.vehicleType != null && this.vehicleName == null)
+    return (this.driverId == uid && this.vehicleType != null)
   }
 
 }

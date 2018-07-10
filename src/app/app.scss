@@ -68,7 +68,7 @@ ion-navbar{
 // Classes for run status display
 .gone_class {
   @extend .row_class;
-  background-color: lightblue;
+  background-color: cornflowerblue;
 }
 
 .finished_class {
@@ -78,16 +78,16 @@ ion-navbar{
 
 .error_class {
   @extend .row_class;
-  background-color: lightpink;
+  background-color: $error;
 }
 
 .needs_filling_class {
   @extend .row_class;
-  background-color: orange;
+  background-color: yellow;
 }
 
 .ready_class {
   @extend .row_class;
-  background-color: lightgreen;
+  background-color: lime;
 }
 

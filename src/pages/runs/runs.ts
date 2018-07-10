@@ -65,7 +65,7 @@ export class RunsPage {
   private buildFromJSON(data) {
     this.runs = [] // Empty current list or initialize it
     data.forEach((value) => {
-      var r = new RunModel(value.id, value.title, value.status, value.begin_at, value.start_at, value.end_at)
+      var r = new RunModel(value.id, value.title, value.nb_passenger, value.status, value.begin_at, value.start_at, value.end_at)
       value.runners.forEach((runner) => {
         let rid: number = (runner.user == null) ? null : runner.user.id // run is incomplete
         let rname: string = (runner.user == null) ? null : runner.user.name // run is incomplete

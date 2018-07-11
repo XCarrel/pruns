@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IonicPage, NavController, NavParams} from 'ionic-angular';
+import {DateTime, IonicPage, NavController, NavParams} from 'ionic-angular';
 import {Parameters} from "../../providers/Parameters";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Storage} from '@ionic/storage';
@@ -7,6 +7,7 @@ import {RunModel} from "../../models/runModel";
 import {RunnerModel} from "../../models/runnerModel";
 import {WaypointModel} from "../../models/waypointModel";
 import {RunPage} from "../run/run";
+import {LoginPage} from "../login/login";
 
 /**
  * Generated class for the RunsPage page.
@@ -22,7 +23,6 @@ import {RunPage} from "../run/run";
 })
 export class RunsPage {
 
-  private loading: boolean = true
   private runs: RunModel[]
   private filteredRuns: RunModel[]
   private userid: number
@@ -30,18 +30,26 @@ export class RunsPage {
   private myruns: boolean
   private finished: boolean
   private incomplete: boolean
+  private connected: boolean = false // true if the last call to the API was successful
+  private dataTimestamp = null
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public httpClient: HttpClient, public storage: Storage) {
+    // First get runs from storage in any case
+    this.storage.get('runs').then(data => {
+      if (data != null) {
+        this.buildFromJSON(data)
+        this.storage.get('dataTimestamp').then(ts => {
+          this.dataTimestamp = ts
+        })
+      }
+      this.storage.get('token').then(token => {
+        this.usertoken = token
+        this.load(null)
+      })
+    })
     this.storage.get('userid').then((val) => {
       this.userid = val
     })
-    this.storage.get('token').then(token => {
-      this.usertoken = token
-      this.load(null)
-    })
-  }
-
-  ionViewDidLoad() {
   }
 
   private load(refresher) {
@@ -50,13 +58,32 @@ export class RunsPage {
       .subscribe(
         data => {
           this.buildFromJSON(data)
-          this.filter()
-          this.loading = false
           if (refresher != null) refresher.complete()
+          this.storage.set('runs',data)
+          this.connected = true
+          // build timestamp
+          var date = new Date();
+
+          var options = {
+            weekday: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          };
+          this.dataTimestamp = date.toLocaleDateString("fr", options)
+          this.storage.set('dataTimestamp', this.dataTimestamp)
         },
         err => {
-          console.log('Error')
+          if (err.status == 401) {
+            this.storage.clear() // invalid token -> trash all data
+            this.toastCtrl.create({message: 'Code invalide', duration:2000, cssClass:'toastMessage'}).present()
+            this.navCtrl.setRoot(LoginPage)
+          }
+          else
+            this.toastCtrl.create({message: 'Problème de connexion', duration:2000, cssClass:'toastMessage'}).present()
+          console.log('Error retrieving runs from backend')
           if (refresher != null) refresher.complete()
+          this.connected = false
         }
       )
   }
@@ -78,6 +105,7 @@ export class RunsPage {
       })
       this.runs.push(r)
     })
+    this.filter()
   }
 
   public viewDetails(run) {

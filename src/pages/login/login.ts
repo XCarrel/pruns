@@ -41,8 +41,12 @@ export class LoginPage {
               this.navCtrl.setRoot(RunsPage)
             },
             err => {
-              this.storage.remove('token') // invalid token -> trash it
-              this.toastCtrl.create({message: 'Code invalide', duration:2000, cssClass:'toastMessage'}).present()
+              if (err.status == 401) {
+                this.storage.clear() // invalid token -> trash all data
+                this.toastCtrl.create({message: 'Code invalide', duration:2000, cssClass:'toastMessage'}).present()
+              }
+              else
+                this.toastCtrl.create({message: 'Problème de connexion', duration:2000, cssClass:'toastMessage'}).present()
             }
           )
       }

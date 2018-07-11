@@ -10,7 +10,6 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import {LoginPage} from "../pages/login/login";
 import {RunPage} from "../pages/run/run";
 import {RunsPage} from "../pages/runs/runs";
-import { DataProvider } from '../providers/data/data';
 import {HttpClientModule} from "@angular/common/http";
 import {IonicStorageModule} from "@ionic/storage";
 import {BarcodeScanner} from "@ionic-native/barcode-scanner";
@@ -41,7 +40,6 @@ import {BarcodeScanner} from "@ionic-native/barcode-scanner";
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    DataProvider,
     BarcodeScanner
   ]
 })

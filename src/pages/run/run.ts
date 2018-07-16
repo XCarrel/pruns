@@ -66,7 +66,7 @@ export class RunPage {
   }
 
   private parseResponse(data) {
-    this.run = new RunModel(data.id, data.title, data.nb_passenger, data.status, data.begin_at, data.start_at, data.end_at)
+    this.run = new RunModel(data.id, data.title, data.nb_passenger, data.status, data.begin_at, data.start_at, data.end_at, data.runinfo)
     data.runners.forEach((runner) => {
       let rid: number = (runner.user == null) ? null : runner.user.id // run is incomplete
       let rname: string = (runner.user == null) ? null : runner.user.name // run is incomplete

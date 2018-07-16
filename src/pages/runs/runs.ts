@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {DateTime, IonicPage, NavController, NavParams} from 'ionic-angular';
+import {DateTime, IonicPage, NavController, NavParams, ToastController} from 'ionic-angular';
 import {Parameters} from "../../providers/Parameters";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Storage} from '@ionic/storage';
@@ -33,7 +33,7 @@ export class RunsPage {
   private connected: boolean = false // true if the last call to the API was successful
   private dataTimestamp = null
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public httpClient: HttpClient, public storage: Storage) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public httpClient: HttpClient, public storage: Storage, public toastCtrl: ToastController) {
     // First get runs from storage in any case
     this.storage.get('runs').then(data => {
       if (data != null) {
@@ -92,7 +92,7 @@ export class RunsPage {
   private buildFromJSON(data) {
     this.runs = [] // Empty current list or initialize it
     data.forEach((value) => {
-      var r = new RunModel(value.id, value.title, value.nb_passenger, value.status, value.begin_at, value.start_at, value.end_at)
+      var r = new RunModel(value.id, value.title, value.nb_passenger, value.status, value.begin_at, value.start_at, value.end_at, value.runinfo)
       value.runners.forEach((runner) => {
         let rid: number = (runner.user == null) ? null : runner.user.id // run is incomplete
         let rname: string = (runner.user == null) ? null : runner.user.name // run is incomplete

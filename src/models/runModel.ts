@@ -15,8 +15,9 @@ export class RunModel {
   private ended_at: string // end_at field
   private runners: RunnerModel[]
   private waypoints: WaypointModel[]
+  private runinfo: string
 
-  constructor(id: number, title: string, pax: number, status: string, planned_at: string, started_at: string, ended_at: string) {
+  constructor(id: number, title: string, pax: number, status: string, planned_at: string, started_at: string, ended_at: string, runinfo: string) {
     this.id = id
     this.title = title
     this.pax = pax
@@ -26,6 +27,7 @@ export class RunModel {
     this.ended_at = ended_at
     this.runners = []
     this.waypoints = []
+    this.runinfo = runinfo
   }
 
   addRunner(r: RunnerModel) {

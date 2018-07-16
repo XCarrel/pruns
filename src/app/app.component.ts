@@ -13,6 +13,8 @@ import {LoginPage} from "../pages/login/login";
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
+  private appVersion: string = '1.0.1'
+
   rootPage: any = HomePage;
 
   pages: Array<{title: string, component: any}>;

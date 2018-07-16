@@ -55,6 +55,10 @@
           <ion-icon name="car" item-left></ion-icon>
           {{run.ended_at | date:'d MMM H:mm'}}
         </ion-item>
+        <ion-item *ngIf="run.runinfo">
+          <ion-icon name="clipboard" item-left=""></ion-icon>
+          <div class="infodiv">{{run.runinfo}}</div>
+        </ion-item>
       </ion-list>
     </ion-card-content>
   </ion-card>
@@ -89,10 +93,10 @@
               <!-- Vehicle -->
               <ion-row class="iconized">
                 <ion-icon name="car" item-left class="iconized"></ion-icon>
-                <span *ngIf="runner.selectableBy(userid)">
+                <span *ngIf="runner.selectableBy(userid) && runStatusCode != 4">
                   <button ion-button color="primary" icon-left (click)="selectCar(runner)">{{ runner.vehicleName == null ? 'Choisir' : runner.vehicleName }}</button>
                 </span>
-                <span *ngIf="!runner.selectableBy(userid)">
+                <span *ngIf="!runner.selectableBy(userid) || runStatusCode == 4">
                   <span *ngIf="runner.vehicleType != null">
                     {{runner.vehicleName ? runner.vehicleName : 'Type '+runner.vehicleType}}
                   </span>

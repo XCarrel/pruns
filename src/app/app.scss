@@ -65,6 +65,14 @@ ion-navbar{
   text-align: center;
 }
 
+.version {
+  font-size: x-small;
+  color: gray;
+  position: absolute;
+  bottom: 0px;
+  margin-left: 10px;
+}
+
 // Classes for run status display
 .gone_class {
   @extend .row_class;
@@ -90,4 +98,5 @@ ion-navbar{
   @extend .row_class;
   background-color: lime;
 }
+
 
